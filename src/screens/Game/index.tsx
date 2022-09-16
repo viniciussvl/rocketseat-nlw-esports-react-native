@@ -9,6 +9,7 @@ import { Entypo } from '@expo/vector-icons';
 import { THEME } from "../../theme";
 import { Heading } from "../../components/Heading";
 import { DuoCard, DuoCardProps } from "../../components/DuoCard";
+import { DuoMatch } from '../../components/DuoMatch';
 import { useEffect, useState } from "react";
 
 export function Game() {
@@ -21,7 +22,18 @@ export function Game() {
         navigation.goBack()
     }
 
+    async function getDiscordUser(adsId: string) {
+        useEffect(() => {
+            fetch(`http://192.168.0.114:3333/ads/${adsId}/discord`)
+            .then(response => response.json())
+            .then(data => {
+                setDiscordDuoSelected(data.discord)
+            })
+          }, [])
+    }
+
     const [duos, setDuos] = useState<DuoCardProps[]>([])
+    const [discordDuoSelected, setDiscordDuoSelected] = useState<string>('');
 
     useEffect(() => {
         fetch(`http://192.168.0.114:3333/games/${game.id}/ads`)
@@ -57,8 +69,7 @@ export function Game() {
                     data={duos}
                     keyExtractor={item => item.id}
                     renderItem={({item}) => (
-                        <DuoCard data={item} onConnect={() => {}} />
-
+                        <DuoCard data={item} onConnect={() => getDiscordUser(item.id)} />
                     )}
                     style={styles.containerList }
                     horizontal
@@ -71,6 +82,11 @@ export function Game() {
                     )}
                 />
 
+                <DuoMatch 
+                    visible={discordDuoSelected.length > 0}
+                    discord="eae"
+                    onClose={() => setDiscordDuoSelected('')}
+                />
 
             </SafeAreaView>
         </Background>
